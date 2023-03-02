@@ -264,56 +264,12 @@
             MX8MN_IOMUXC_GPIO1_IO03_GPIO1_IO3	0x41
         >;
     };
-};
 
-&i2c2 {
-	clock-frequency = <400000>;
-	pinctrl-names = "default", "gpio";
-	pinctrl-0 = <&pinctrl_i2c2>;
-	pinctrl-1 = <&pinctrl_i2c2_gpio>;
-	scl-gpios = <&gpio5 16 GPIO_ACTIVE_HIGH>;
-	sda-gpios = <&gpio5 17 GPIO_ACTIVE_HIGH>;
-	status = "okay";
-
-};
-
-&i2c3 {
-	clock-frequency = <100000>;
-	pinctrl-names = "default", "gpio";
-	pinctrl-0 = <&pinctrl_i2c3>;
-	pinctrl-1 = <&pinctrl_i2c3_gpio>;
-	scl-gpios = <&gpio5 18 GPIO_ACTIVE_HIGH>;
-	sda-gpios = <&gpio5 19 GPIO_ACTIVE_HIGH>;
-	status = "okay";
-
-	pca6416: gpio@20 {
-		compatible = "ti,tca6416";
-		reg = <0x20>;
-		gpio-controller;
-		#gpio-cells = <2>;
-	};
-};
-
-&fec1 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_fec1>;
-	phy-mode = "rgmii-id";
-	phy-handle = <&ethphy0>;
-	fsl,magic-packet;
-	status = "disabled";
-
-	mdio {
-		#address-cells = <1>;
-		#size-cells = <0>;
-
-		ethphy0: ethernet-phy@0 {
-			compatible = "ethernet-phy-ieee802.3-c22";
-			reg = <0>;
-			at803x,led-act-blind-workaround;
-			at803x,eee-disabled;
-			at803x,vddio-1p8v;
-		};
-	};
+    pinctrl_mipi_dsi_en: mipi_dsi_en {
+        fsl,pins = <
+            MX8MN_IOMUXC_GPIO1_IO01_GPIO1_IO1		0x16
+        >;
+    };
 };
 
 &flexspi {
@@ -321,9 +277,9 @@
 	pinctrl-0 = <&pinctrl_flexspi0>;
 	status = "okay";
 
-	flash0: mt25qu256aba@0 {
+	flash0: w25q128@0 {
 		reg = <0>;
-		compatible = "jedec,spi-nor";
+		compatible = "winbond,w25q128", "jedec,spi-nor";
 		spi-max-frequency = <80000000>;
 		spi-tx-bus-width = <4>;
 		spi-rx-bus-width = <4>;
@@ -478,16 +434,6 @@
 	status = "okay";
 };
 
-&usdhc3 {
-	pinctrl-names = "default", "state_100mhz", "state_200mhz";
-	pinctrl-0 = <&pinctrl_usdhc3>;
-	pinctrl-1 = <&pinctrl_usdhc3_100mhz>;
-	pinctrl-2 = <&pinctrl_usdhc3_200mhz>;
-	bus-width = <8>;
-	non-removable;
-	status = "disabled";
-};
-
 &wdog1 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_wdog>;
@@ -498,6 +444,28 @@
 &usbotg1 {
 	dr_mode = "peripheral";
 	status = "okay";
+};
+
+&lcdif {
+	status = "okay";
+};
+
+&mipi_dsi {
+    status = "okay";
+	panel@0 {
+		compatible = "raydium,rm69700";
+		reg = <0>;
+		pinctrl-0 = <&pinctrl_mipi_dsi_en>;
+		reset-gpio = <&gpio1 1 GPIO_ACTIVE_LOW>;
+		dsi-lanes = <2>;
+		video-mode = <2>;	/* 0: burst mode
+					 * 1: non-burst mode with sync event
+					 * 2: non-burst mode with sync pulse
+					 */
+		panel-width-mm = <41>;
+		panel-height-mm = <55>;
+		status = "okay";
+	};
 };
 
 &gpu {
