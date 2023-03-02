@@ -2,3 +2,4 @@ uuu_version 1.5.21
 FB: download -f arch/arm64/boot/dts/freescale/sharket.dtb
 
 FB: acmd booti ${loadaddr} - ${fdt_addr}
+exit
