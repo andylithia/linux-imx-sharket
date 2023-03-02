@@ -49,6 +49,111 @@
 		startup-delay-us = <100>;
 		off-on-delay-us = <12000>;
 	};
+
+    matrix_keypad: matrix_keypad0 {
+		compatible = "gpio-matrix-keypad";
+		debounce-delay-ms = <5>;
+		col-scan-delay-us = <2>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&matrix_keypad_default>;
+		wakeup-source;
+
+		row-gpios =
+            <&gpio1 16 GPIO_ACTIVE_HIGH
+            &gpio1 17 GPIO_ACTIVE_HIGH
+            &gpio1 18 GPIO_ACTIVE_HIGH
+            &gpio1 19 GPIO_ACTIVE_HIGH
+            &gpio1 20 GPIO_ACTIVE_HIGH
+            &gpio1 21 GPIO_ACTIVE_HIGH
+            &gpio1 22 GPIO_ACTIVE_HIGH
+            &gpio5 29 GPIO_ACTIVE_HIGH>;
+
+		col-gpios =
+            <&gpio1 8 GPIO_ACTIVE_HIGH
+            &gpio1 9 GPIO_ACTIVE_HIGH
+            &gpio1 10 GPIO_ACTIVE_HIGH
+            &gpio1 11 GPIO_ACTIVE_HIGH
+            &gpio1 12 GPIO_ACTIVE_HIGH
+            &gpio1 13 GPIO_ACTIVE_HIGH
+            &gpio1 14 GPIO_ACTIVE_HIGH>;
+
+		linux,keymap = <
+            0x0000003f  /* graph, f5*/
+			0x0100003e  /* trace, f4 */
+			0x0200003d  /* zoom, f3 */
+			0x0300003c  /* window, f2 */
+            0x0400003b  /* y=, f1 */
+            0x0500000f  /* 2nd, tab */
+            0x06000001  /* mode, esc */
+            0x0700006f  /* del, delete */
+			0x0101002d  /* sto, x */
+			0x02010026  /* ln, l */
+			0x03010022  /* log, g */
+            0x04010010  /* x^2, q */
+            0x0501002f  /* x^-1, v */
+            0x06010066  /* math, home */
+            0x07010028  /* alpha, tilde */
+            0x00020052  /* 0 */
+			0x0102004f  /* 1 */
+			0x0202004b  /* 4 */
+			0x03020047  /* 7 */
+            0x04020033  /* , */
+            0x05020017  /* sin, i */
+            0x06020023  /* apps, h */
+            0x0702000d  /* xttn, equal */
+            0x00030053  /* . */
+			0x01030050  /* 2 */
+			0x0203004c  /* 5 */
+			0x03030048  /* 8 */
+            0x04030025  /* (, k */
+            0x05030018  /* cos, o */
+            0x06030068  /* prgm, pageup */
+            0x0703001f  /* stat, s */
+            0x00040012  /* (-), e */
+			0x01040051  /* 3 */
+			0x0204004d  /* 6 */
+			0x03040049  /* 9 */
+            0x04040026  /* ), l */
+            0x05040014  /* tan, t */
+            0x0604006d  /* vars, pagedn */
+            0x07040060  /* enter */
+            0x0005004e  /* + */
+			0x0105004a  /* - */
+			0x02050037  /* * */
+			0x03050062  /* / */
+            0x04050019  /* ^, p */
+            0x0505002e  /* clear, c */
+            0x0006006c  /* down */
+			0x01060069  /* left */
+			0x0206006a  /* right */
+			0x03060067  /* up */
+            >;
+	};
+
+    sound {
+		compatible = "simple-audio-card";
+        simple-audio-card,name = "wm8979-audio";
+		simple-audio-card,format = "dsp_a";
+        simple-audio-card,bitclock-inversion;
+		simple-audio-card,frame-master = <&codec>;
+		simple-audio-card,bitclock-master = <&codec>;
+
+		simple-audio-card,cpu {
+			sound-dai = <&sai2>;
+			dai-tdm-slot-num = <2>;
+			dai-tdm-slot-width = <16>;
+		};
+
+		codec: simple-audio-card,codec {
+			sound-dai = <&wm8978>;
+			clocks = <&clk IMX8MN_CLK_SAI2_ROOT>;
+		};
+	};
+};
+
+&clk {
+	assigned-clocks = <&clk IMX8MN_AUDIO_PLL1>, <&clk IMX8MN_AUDIO_PLL2>;
+	assigned-clock-rates = <393216000>, <361267200>;
 };
 
 &A53_0 {
@@ -57,26 +162,6 @@
 
 &iomuxc {
 	pinctrl-names = "default";
-
-	pinctrl_fec1: fec1grp {
-		fsl,pins = <
-			MX8MN_IOMUXC_ENET_MDC_ENET1_MDC		0x3
-			MX8MN_IOMUXC_ENET_MDIO_ENET1_MDIO	0x3
-			MX8MN_IOMUXC_ENET_TD3_ENET1_RGMII_TD3	0x1f
-			MX8MN_IOMUXC_ENET_TD2_ENET1_RGMII_TD2	0x1f
-			MX8MN_IOMUXC_ENET_TD1_ENET1_RGMII_TD1	0x1f
-			MX8MN_IOMUXC_ENET_TD0_ENET1_RGMII_TD0	0x1f
-			MX8MN_IOMUXC_ENET_RD3_ENET1_RGMII_RD3	0x91
-			MX8MN_IOMUXC_ENET_RD2_ENET1_RGMII_RD2	0x91
-			MX8MN_IOMUXC_ENET_RD1_ENET1_RGMII_RD1	0x91
-			MX8MN_IOMUXC_ENET_RD0_ENET1_RGMII_RD0	0x91
-			MX8MN_IOMUXC_ENET_TXC_ENET1_RGMII_TXC	0x1f
-			MX8MN_IOMUXC_ENET_RXC_ENET1_RGMII_RXC	0x91
-			MX8MN_IOMUXC_ENET_RX_CTL_ENET1_RGMII_RX_CTL	0x91
-			MX8MN_IOMUXC_ENET_TX_CTL_ENET1_RGMII_TX_CTL	0x1f
-			MX8MN_IOMUXC_SAI2_RXC_GPIO4_IO22	0x19
-		>;
-	};
 
 	pinctrl_flexspi0: flexspi0grp {
 		fsl,pins = <
@@ -165,7 +250,7 @@
 
 	pinctrl_usdhc2_gpio: usdhc2grpgpio {
 		fsl,pins = <
-			MX8MN_IOMUXC_GPIO1_IO15_GPIO1_IO15	0x1c4
+			MX8MN_IOMUXC_SD2_CD_B_GPIO2_IO12	0x1c4
 		>;
 	};
 
@@ -205,54 +290,6 @@
 		>;
 	};
 
-	pinctrl_usdhc3: usdhc3grp {
-		fsl,pins = <
-			MX8MN_IOMUXC_NAND_WE_B_USDHC3_CLK		0x40000190
-			MX8MN_IOMUXC_NAND_WP_B_USDHC3_CMD		0x1d0
-			MX8MN_IOMUXC_NAND_DATA04_USDHC3_DATA0		0x1d0
-			MX8MN_IOMUXC_NAND_DATA05_USDHC3_DATA1		0x1d0
-			MX8MN_IOMUXC_NAND_DATA06_USDHC3_DATA2		0x1d0
-			MX8MN_IOMUXC_NAND_DATA07_USDHC3_DATA3		0x1d0
-			MX8MN_IOMUXC_NAND_RE_B_USDHC3_DATA4		0x1d0
-			MX8MN_IOMUXC_NAND_CE2_B_USDHC3_DATA5		0x1d0
-			MX8MN_IOMUXC_NAND_CE3_B_USDHC3_DATA6		0x1d0
-			MX8MN_IOMUXC_NAND_CLE_USDHC3_DATA7		0x1d0
-			MX8MN_IOMUXC_NAND_CE1_B_USDHC3_STROBE		0x190
-		>;
-	};
-
-	pinctrl_usdhc3_100mhz: usdhc3grp100mhz {
-		fsl,pins = <
-			MX8MN_IOMUXC_NAND_WE_B_USDHC3_CLK		0x40000194
-			MX8MN_IOMUXC_NAND_WP_B_USDHC3_CMD		0x1d4
-			MX8MN_IOMUXC_NAND_DATA04_USDHC3_DATA0		0x1d4
-			MX8MN_IOMUXC_NAND_DATA05_USDHC3_DATA1		0x1d4
-			MX8MN_IOMUXC_NAND_DATA06_USDHC3_DATA2		0x1d4
-			MX8MN_IOMUXC_NAND_DATA07_USDHC3_DATA3		0x1d4
-			MX8MN_IOMUXC_NAND_RE_B_USDHC3_DATA4		0x1d4
-			MX8MN_IOMUXC_NAND_CE2_B_USDHC3_DATA5		0x1d4
-			MX8MN_IOMUXC_NAND_CE3_B_USDHC3_DATA6		0x1d4
-			MX8MN_IOMUXC_NAND_CLE_USDHC3_DATA7		0x1d4
-			MX8MN_IOMUXC_NAND_CE1_B_USDHC3_STROBE		0x194
-		>;
-	};
-
-	pinctrl_usdhc3_200mhz: usdhc3grp200mhz {
-		fsl,pins = <
-			MX8MN_IOMUXC_NAND_WE_B_USDHC3_CLK		0x40000196
-			MX8MN_IOMUXC_NAND_WP_B_USDHC3_CMD		0x1d6
-			MX8MN_IOMUXC_NAND_DATA04_USDHC3_DATA0		0x1d6
-			MX8MN_IOMUXC_NAND_DATA05_USDHC3_DATA1		0x1d6
-			MX8MN_IOMUXC_NAND_DATA06_USDHC3_DATA2		0x1d6
-			MX8MN_IOMUXC_NAND_DATA07_USDHC3_DATA3		0x1d6
-			MX8MN_IOMUXC_NAND_RE_B_USDHC3_DATA4		0x1d6
-			MX8MN_IOMUXC_NAND_CE2_B_USDHC3_DATA5		0x1d6
-			MX8MN_IOMUXC_NAND_CE3_B_USDHC3_DATA6		0x1d6
-			MX8MN_IOMUXC_NAND_CLE_USDHC3_DATA7		0x1d6
-			MX8MN_IOMUXC_NAND_CE1_B_USDHC3_STROBE		0x196
-		>;
-	};
-
 	pinctrl_wdog: wdoggrp {
 		fsl,pins = <
 			MX8MN_IOMUXC_GPIO1_IO02_WDOG1_WDOG_B		0xc6
@@ -268,6 +305,38 @@
     pinctrl_mipi_dsi_en: mipi_dsi_en {
         fsl,pins = <
             MX8MN_IOMUXC_GPIO1_IO01_GPIO1_IO1		0x16
+        >;
+    };
+
+    matrix_keypad_default: matrix_keypad_default {
+        fsl,pins = <
+            /* Row, input, pull down, schmitt input */
+            MX8MN_IOMUXC_ENET_MDC_GPIO1_IO16        0x180
+            MX8MN_IOMUXC_ENET_MDIO_GPIO1_IO17       0x180
+            MX8MN_IOMUXC_ENET_TD3_GPIO1_IO18        0x180
+            MX8MN_IOMUXC_ENET_TD2_GPIO1_IO19        0x180
+            MX8MN_IOMUXC_ENET_TD1_GPIO1_IO20        0x180
+            MX8MN_IOMUXC_ENET_TD0_GPIO1_IO21        0x180
+            MX8MN_IOMUXC_ENET_TX_CTL_GPIO1_IO22     0x180
+            MX8MN_IOMUXC_UART4_TXD_GPIO5_IO29       0x180
+            /* Col, output, slow slew, x2 drive strength */
+            MX8MN_IOMUXC_GPIO1_IO08_GPIO1_IO8		0x02
+            MX8MN_IOMUXC_GPIO1_IO09_GPIO1_IO9		0x02
+            MX8MN_IOMUXC_GPIO1_IO10_GPIO1_IO10		0x02
+            MX8MN_IOMUXC_GPIO1_IO11_GPIO1_IO11		0x02
+            MX8MN_IOMUXC_GPIO1_IO12_GPIO1_IO12		0x02
+            MX8MN_IOMUXC_GPIO1_IO13_GPIO1_IO13		0x02
+            MX8MN_IOMUXC_GPIO1_IO14_GPIO1_IO14		0x02
+        >;
+    };
+
+    pinctrl_sai2: sai2grp {
+        fsl,pins = <
+            MX8MN_IOMUXC_SAI2_TXC_SAI2_TX_BCLK      0xd6
+            MX8MN_IOMUXC_SAI2_TXFS_SAI2_TX_SYNC     0xd6
+            MX8MN_IOMUXC_SAI2_TXD0_SAI2_TX_DATA0    0xd6
+            MX8MN_IOMUXC_SAI2_RXD0_SAI2_RX_DATA0    0xd6
+            MX8MN_IOMUXC_SAI2_MCLK_SAI2_MCLK        0xd6
         >;
     };
 };
@@ -410,8 +479,23 @@
 			};
 		};
 	};
+
+    wm8978: codec@1a {
+		#sound-dai-cells = <0>;
+		compatible = "wlf,wm8978";
+		reg = <0x1a>;
+	};
 };
 
+&sai2 {
+	#sound-dai-cells = <0>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_sai2>;
+	assigned-clocks = <&clk IMX8MN_CLK_SAI2>;
+	assigned-clock-parents = <&clk IMX8MN_AUDIO_PLL1_OUT>;
+	assigned-clock-rates = <24576000>;
+	status = "okay";
+};
 
 &snvs_pwrkey {
 	status = "okay";
@@ -428,7 +512,7 @@
 	pinctrl-0 = <&pinctrl_usdhc2>, <&pinctrl_usdhc2_gpio>;
 	pinctrl-1 = <&pinctrl_usdhc2_100mhz>, <&pinctrl_usdhc2_gpio>;
 	pinctrl-2 = <&pinctrl_usdhc2_200mhz>, <&pinctrl_usdhc2_gpio>;
-	cd-gpios = <&gpio1 15 GPIO_ACTIVE_LOW>;
+	cd-gpios = <&gpio2 12 GPIO_ACTIVE_LOW>;
 	bus-width = <4>;
 	vmmc-supply = <&reg_usdhc2_vmmc>;
 	status = "okay";
@@ -469,5 +553,5 @@
 };
 
 &gpu {
-	status = "okay";
+	status = "disabled";
 };
