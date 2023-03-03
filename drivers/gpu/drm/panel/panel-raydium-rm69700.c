@@ -82,9 +82,9 @@ static const struct drm_display_mode default_mode = {
 	.hsync_end = 800 + 40 + 128,
 	.htotal = 800 + 40 + 128 + 88,
 	.vdisplay = 600,
-	.vsync_start = 600 + 1,
-	.vsync_end = 600 + 1 + 4,
-	.vtotal = 600 + 1 + 4 + 23,
+	.vsync_start = 600 + 16,
+	.vsync_end = 600 + 16 + 4,
+	.vtotal = 600 + 16 + 4 + 8,
 	.vrefresh = 60,
 	.width_mm = 55,
 	.height_mm = 41,
@@ -223,6 +223,8 @@ static int rm69700_enable(struct rad_panel *panel)
 	usleep_range(15000, 17000);
 
 	/* Set DSI mode */
+	// 00: command mode, internal HVsync
+	// 0b: video mode, from RAM, external HVsync
 	ret = mipi_dsi_generic_write(dsi, (u8[]){ 0xC2, 0x0b }, 2);
 	if (ret < 0) {
 		DRM_DEV_ERROR(dev, "Failed to set DSI mode (%d)\n", ret);
@@ -472,7 +474,7 @@ static int rad_panel_probe(struct mipi_dsi_device *dsi)
 	panel->pdata = of_id->data;
 
 	dsi->format = MIPI_DSI_FMT_RGB888;
-	dsi->mode_flags =  MIPI_DSI_MODE_VIDEO_HSE | MIPI_DSI_MODE_VIDEO;
+	dsi->mode_flags = MIPI_DSI_MODE_VIDEO | MIPI_DSI_MODE_VSYNC_FLUSH;
 
 	ret = of_property_read_u32(np, "video-mode", &video_mode);
 	if (!ret) {
